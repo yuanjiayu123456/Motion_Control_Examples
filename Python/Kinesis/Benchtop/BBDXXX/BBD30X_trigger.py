@@ -149,11 +149,14 @@ def main():
         new_pos = Decimal(75)  # in real units for channel 1
         new_pos_ch2 = Decimal(50)  # in real units for channel 2
         print(f'Moving channel 1 to {new_pos} and channel 2 to {new_pos_ch2}')
-        def move_channel(channel, target):
-            channel.MoveTo(target, 60000)  # 60 second timeout
+        def move_channel(channel, target, channel_name):
+            try:
+                channel.MoveTo(target, 60000)  # 60 second timeout
+            except Exception as exc:
+                print(f"Move failed on {channel_name}: {exc}")
 
-        thread1 = threading.Thread(target=move_channel, args=(channel1, new_pos))
-        thread2 = threading.Thread(target=move_channel, args=(channel2, new_pos_ch2))
+        thread1 = threading.Thread(target=move_channel, args=(channel1, new_pos, "channel 1"), name="Channel1Move")
+        thread2 = threading.Thread(target=move_channel, args=(channel2, new_pos_ch2, "channel 2"), name="Channel2Move")
 
         # Start both channels and wait for completion
         thread1.start()
