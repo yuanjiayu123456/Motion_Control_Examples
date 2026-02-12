@@ -8,6 +8,7 @@ Kinesis Version Tested: 1.14.49
 import os
 import time
 import sys
+import threading
 import clr
 
 clr.AddReference("C:\\Program Files\\Thorlabs\\Kinesis\\Thorlabs.MotionControl.DeviceManagerCLI.dll")
@@ -148,8 +149,16 @@ def main():
         new_pos = Decimal(75)  # in real units for channel 1
         new_pos_ch2 = Decimal(50)  # in real units for channel 2
         print(f'Moving channel 1 to {new_pos} and channel 2 to {new_pos_ch2}')
-        channel1.MoveTo(new_pos, 60000)  # 60 second timeout
-        channel2.MoveTo(new_pos_ch2, 60000)  # 60 second timeout
+        def _move_channel(channel, target):
+            channel.MoveTo(target, 60000)  # 60 second timeout
+
+        thread1 = threading.Thread(target=_move_channel, args=(channel1, new_pos))
+        thread2 = threading.Thread(target=_move_channel, args=(channel2, new_pos_ch2))
+
+        thread1.start()
+        thread2.start()
+        thread1.join()
+        thread2.join()
 
         # Disabling trigger state
         channel1.SetPositionTriggerState(ControlParameters.TriggerState.TrigState_Disabled)
