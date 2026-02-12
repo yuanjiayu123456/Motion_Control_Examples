@@ -161,12 +161,9 @@ def main():
         ]
 
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="BBD30X") as executor:
-            futures = [(executor.submit(move_channel, ch, pos, name), name) for ch, pos, name in channel_moves]
-            for future, channel_name in futures:
-                try:
-                    future.result()
-                except Exception as exc:
-                    raise RuntimeError(f"Move failed on {channel_name}: {exc}") from exc
+            futures = [executor.submit(move_channel, ch, pos, name) for ch, pos, name in channel_moves]
+            for future in futures:
+                future.result()
 
         # Disabling trigger state
         channel1.SetPositionTriggerState(ControlParameters.TriggerState.TrigState_Disabled)
