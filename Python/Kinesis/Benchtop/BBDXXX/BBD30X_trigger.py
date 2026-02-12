@@ -161,8 +161,7 @@ def main():
                 try:
                     future.result()
                 except Exception as exc:
-                    print(f"Move failed on {channel_name}: {exc}")
-                    raise
+                    raise RuntimeError(f"Move failed on {channel_name}: {exc}") from exc
 
         # Disabling trigger state
         channel1.SetPositionTriggerState(ControlParameters.TriggerState.TrigState_Disabled)

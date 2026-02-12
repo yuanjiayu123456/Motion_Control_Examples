@@ -7,7 +7,7 @@ This example uses the Kinesis C/C++ library and the Python module 'ctypes'´.
 ## bbd_pythonnet.py
 This example uses the Kinesis .NET library and the Python module 'pythonNET'.
 
-## 使用 Python 同时控制两路 BBD302 平移台 (Control two BBD302 channels with Python)
+## 使用 Python 同时控制两路 BBD302 平移台 (Simultaneously control two BBD302 channels with Python)
 `BBD30X_trigger.py` 已经演示了 BBD302 的两路通道（channel 1 和 channel 2）并列使用，适合双轴平移台：
 
 1. 安装 `pythonnet`：`pip install pythonnet`。保证 `clr.AddReference` 的路径指向本机已安装的
