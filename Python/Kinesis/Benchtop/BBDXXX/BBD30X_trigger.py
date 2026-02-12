@@ -149,12 +149,13 @@ def main():
         new_pos = Decimal(75)  # in real units for channel 1
         new_pos_ch2 = Decimal(50)  # in real units for channel 2
         print(f'Moving channel 1 to {new_pos} and channel 2 to {new_pos_ch2}')
-        def _move_channel(channel, target):
+        def move_channel(channel, target):
             channel.MoveTo(target, 60000)  # 60 second timeout
 
-        thread1 = threading.Thread(target=_move_channel, args=(channel1, new_pos))
-        thread2 = threading.Thread(target=_move_channel, args=(channel2, new_pos_ch2))
+        thread1 = threading.Thread(target=move_channel, args=(channel1, new_pos))
+        thread2 = threading.Thread(target=move_channel, args=(channel2, new_pos_ch2))
 
+        # Start both channels and wait for completion
         thread1.start()
         thread2.start()
         thread1.join()
