@@ -144,10 +144,12 @@ def main():
 
         time.sleep(1.0)
 
-        # Move the device to a new position
-        new_pos = Decimal(75)  # in real units
-        print(f'Moving to {new_pos}')
+        # Move the device to a new position on both channels
+        new_pos = Decimal(75)  # in real units for channel 1
+        new_pos_ch2 = Decimal(50)  # in real units for channel 2
+        print(f'Moving channel 1 to {new_pos} and channel 2 to {new_pos_ch2}')
         channel1.MoveTo(new_pos, 60000)  # 60 second timeout
+        channel2.MoveTo(new_pos_ch2, 60000)  # 60 second timeout
 
         # Disabling trigger state
         channel1.SetPositionTriggerState(ControlParameters.TriggerState.TrigState_Disabled)
