@@ -21,8 +21,11 @@ from Thorlabs.MotionControl.GenericMotorCLI import Settings, ControlParameters
 from Thorlabs.MotionControl.Benchtop.BrushlessMotorCLI import *
 from System import Decimal  # necessary for real world units
 
-def move_channel(channel, target):
-    channel.MoveTo(target, 60000)  # 60 second timeout
+def move_channel(channel, target, channel_name):
+    try:
+        channel.MoveTo(target, 60000)  # 60 second timeout
+    except Exception as exc:
+        raise RuntimeError(f"Move failed on {channel_name}: {exc}") from exc
 
 def main():
     """The main entry point for the application"""
@@ -157,9 +160,8 @@ def main():
             (channel2, new_pos_ch2, "channel 2"),
         ]
 
-        # len(channel_moves) keeps max_workers aligned if additional channels are added later.
-        with ThreadPoolExecutor(max_workers=len(channel_moves), thread_name_prefix="BBD30X") as executor:
-            futures = [(executor.submit(move_channel, ch, pos), name) for ch, pos, name in channel_moves]
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="BBD30X") as executor:
+            futures = [(executor.submit(move_channel, ch, pos, name), name) for ch, pos, name in channel_moves]
             for future, channel_name in futures:
                 try:
                     future.result()
