@@ -21,8 +21,11 @@ from Thorlabs.MotionControl.GenericMotorCLI import Settings, ControlParameters
 from Thorlabs.MotionControl.Benchtop.BrushlessMotorCLI import *
 from System import Decimal  # necessary for real world units
 
-def move_channel(channel, target):
-    channel.MoveTo(target, 60000)  # 60 second timeout
+def move_channel(channel, target, channel_name):
+    try:
+        channel.MoveTo(target, 60000)  # 60 second timeout
+    except Exception as exc:
+        raise RuntimeError(f"Move failed on {channel_name}: {exc}") from exc
 
 def main():
     """The main entry point for the application"""
@@ -152,16 +155,15 @@ def main():
         new_pos = Decimal(75)  # in real units for channel 1
         new_pos_ch2 = Decimal(50)  # in real units for channel 2
         print(f'Moving channel 1 to {new_pos} and channel 2 to {new_pos_ch2}')
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="BBD30X") as executor:
-            futures = [
-                (executor.submit(move_channel, channel1, new_pos), "channel 1"),
-                (executor.submit(move_channel, channel2, new_pos_ch2), "channel 2"),
-            ]
-            for future, channel_name in futures:
-                try:
-                    future.result()
-                except Exception as exc:
-                    raise RuntimeError(f"Move failed on {channel_name}: {exc}") from exc
+        channel_moves = [
+            (channel1, new_pos, "channel 1"),
+            (channel2, new_pos_ch2, "channel 2"),
+        ]
+
+        with ThreadPoolExecutor(max_workers=len(channel_moves), thread_name_prefix="BBD30X") as executor:
+            futures = [executor.submit(move_channel, ch, pos, name) for ch, pos, name in channel_moves]
+            for future in futures:
+                future.result()
 
         # Disabling trigger state
         channel1.SetPositionTriggerState(ControlParameters.TriggerState.TrigState_Disabled)
